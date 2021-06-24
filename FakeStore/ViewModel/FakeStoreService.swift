@@ -12,7 +12,7 @@ class FakeStoreService{
     let baseUrl: URL?
     
     init(){
-        self.baseUrl = URL(string: "https://fakestoreapi.com/products")
+        self.baseUrl = URL(string: "https://fakestoreapi.com/products/")
     }
     
     typealias ServiceResponse = ([Product]?) -> Void
@@ -35,4 +35,25 @@ class FakeStoreService{
             }
         }
     }
+    
+    /// get products from specific category
+    func getProducts(_ category: String, completion: @escaping(ServiceResponse)){
+        var products = [Product]()
+        if let fakeStoreUrl = URL(string: "\(baseUrl!)category/\(category)"){
+            AF.request(fakeStoreUrl).responseJSON { (response) in
+                guard let productDictArr = response.value as? [[String: Any]] else{
+                    print("cannot retrieve data")
+                    completion(nil)
+                    return
+                }
+                for productDict in productDictArr{
+                    let product = Product(productDictionary: productDict)
+                    products.append(product)
+                }
+                completion(products)
+
+            }
+        }
+    }
+    
 }

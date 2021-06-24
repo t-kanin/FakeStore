@@ -1,53 +1,48 @@
 //
 //  HomeViewController.swift
-//  MVVMDemo
+//  FakeStore
 //
 //  Created by kanin tansirisittikul on 21/6/2564 BE.
 //
 
 import Foundation
-
 import UIKit
 
-class HomeViewController: UIViewController {
-
-    @IBOutlet weak var tableView: UITableView!
+class HomeViewController: UIViewController{
+    @IBOutlet weak var categoryTable: UITableView!
     
-    var fakeStoreService: FakeStoreService!
-    var products = [Product]()
+    let category = ["Men's Clothing", "Women's Clothing", "Jewelry","Electronics"]
+    let image_name = ["men", "women","jewelry","electronics"]
     
     override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        tableView.dataSource = self
-        tableView.tableFooterView = UIView(frame: .zero)
-        fakeStoreService = FakeStoreService()
-        fakeStoreService.getAllProducts { (response) in
-            if let products = response{
-                self.products = products
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            }else{return}
-        }
+        categoryTable.dataSource = self
+        categoryTable.delegate = self
+        //categoryTable.isHidden = true
     }
 }
 
-extension HomeViewController: UITableViewDataSource{
+extension HomeViewController:UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if(products.isEmpty){return 1}
-        else{return products.count}
+        return category.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.numberOfLines = 0
-        cell.textLabel?.lineBreakMode = .byWordWrapping
-        if(products.isEmpty){
-            cell.textLabel?.text = "There is no product in the shop"
-        }else{cell.textLabel?.text = products[indexPath.row].title}
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
+        let cell = tableView.dequeueReusableCell(withIdentifier: "homeViewCell", for: indexPath) as! HomeCell
+        cell.selectionStyle = .none;
+        cell.titleLabel.text = category[indexPath.row]
+        cell.imageViewCell.image = UIImage(named:image_name[indexPath.row])
         return cell
     }
 }
 
-
+extension HomeViewController: UITableViewDelegate{
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let vc = storyboard?.instantiateViewController(identifier: "ProductViewController") as? ProductViewController{
+            if(indexPath.row == 0){vc.category = CategoryKeys.men_cloth}
+            else if(indexPath.row == 1){vc.category = CategoryKeys.women_cloth}
+            else if(indexPath.row == 2){vc.category = CategoryKeys.jewelery}
+            else{vc.category = CategoryKeys.electronics}
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+}

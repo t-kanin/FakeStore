@@ -7,4 +7,5 @@ target 'FakeStore' do
 
   # Pods for FakeStore
   pod 'Alamofire', '~> 5.2'
+  pod 'SDWebImage'
 end
